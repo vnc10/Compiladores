@@ -41,7 +41,7 @@ class Lexica:
         'ABRE_COLCHETE', 
         'FECHA_COLCHETE', 
         'ATRIBUICAO',
-        'ID' 
+        'ID',
     ] + list(reservado.values())
 
     t_ignore = ' \t'
@@ -76,20 +76,24 @@ class Lexica:
         t.value = float(t.value)
         return t
 
-    def t_COMMENT(self, t):
-	    r'\{[^}]*[^{]*\}'
-	    for x in xrange(1, len(t.value)):
-		    if t.value[x] == "\n":
-			    t.lexer.lineno += 1
-    
-    def t_newline(self, t):
-        r'\n+'
-        t.lexer.lineno += len(t.value)
+    def t_COMENTARIO(self, t):
+        r'\{[^}]*[^{]*\}'
+        contador = t.value.count("\n")
+        t.lexer.lineno += contador
+        pass
 
     def t_ID(self, t):
         r'[A-Za-z_][\w_]*'
         t.type = self.reservado.get(t.value,'ID')
         return t
+    
+    def t_newline(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
+
+    def t_error(self, t):
+        print("Caractere nao reconhecido '%s'" % t.value[0])
+        t.lexer.skip(1)
 
 if __name__ == '__main__':
     code = open(sys.argv[1], encoding='utf8')
