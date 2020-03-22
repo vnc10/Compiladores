@@ -18,6 +18,7 @@ class Lexica:
         'retorna': 'RETORNA',
         'inteiro': 'INTEIRO',
         'flutuante': 'FLUTUANTE'
+        'cientifica': 'NOTACAO_CIENTIFICA'
     }
     
     tokens = [
@@ -41,8 +42,7 @@ class Lexica:
         'ABRE_COLCHETE', 
         'FECHA_COLCHETE', 
         'ATRIBUICAO',
-        'ID',
-        'NOTACAO_CIENTIFICA'
+        'ID'
     ] + list(reservado.values())
 
     t_ignore = ' \t'
