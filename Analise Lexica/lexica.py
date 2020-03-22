@@ -73,7 +73,7 @@ class Lexica:
         return t
 
     def t_FLUTUANTE(self, t): 
-        r'\d*\.\d+([eE][-+]?\d+)?'
+        r'\d+\.\d+'
         t.value = float(t.value)
         return t
 
