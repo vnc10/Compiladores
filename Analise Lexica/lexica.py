@@ -17,7 +17,7 @@ class Lexica:
         'escreva': 'ESCREVA',
         'retorna': 'RETORNA',
         'inteiro': 'INTEIRO',
-        'flutuante': 'FLUTUANTE',
+        'flutuante': 'FLUTUANTE'
     }
     
     tokens = [
@@ -42,6 +42,7 @@ class Lexica:
         'FECHA_COLCHETE', 
         'ATRIBUICAO',
         'ID',
+        'NOTACAO_CIENTIFICA'
     ] + list(reservado.values())
 
     t_ignore = ' \t'
@@ -76,6 +77,11 @@ class Lexica:
         t.value = float(t.value)
         return t
 
+    def t_NOTACAO_CIENTIFICA(self, t):
+        r'\d+\.?\d*e[+|-]?\d+'
+        t.type = self.reservado.get(t.value, 'NOTACAO_CIENTIFICA')
+        return t
+
     def t_COMENTARIO(self, t):
         r'\{[^}]*[^{]*\}'
         contador = t.value.count("\n")
@@ -84,10 +90,10 @@ class Lexica:
 
     def t_ID(self, t):
         r'[A-Za-z_][\w_]*'
-        t.type = self.reservado.get(t.value,'ID')
+        t.type = self.reservado.get(t.value, 'ID')
         return t
     
-    def t_newline(self, t):
+    def t_Linha(self, t):
         r'\n+'
         t.lexer.lineno += len(t.value)
 
@@ -104,4 +110,3 @@ if __name__ == '__main__':
         if not tok:
             break
         print(tok.lineno, ':', tok.type, ':', tok.value)
-
