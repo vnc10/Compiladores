@@ -17,7 +17,7 @@ class Lexica:
         'escreva': 'ESCREVA',
         'retorna': 'RETORNA',
         'inteiro': 'INTEIRO',
-        'flutuante': 'FLUTUANTE'
+        'flutuante': 'FLUTUANTE',
         'cientifica': 'NOTACAO_CIENTIFICA'
     }
     
