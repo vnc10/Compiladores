@@ -67,14 +67,14 @@ class Lexica:
     t_FECHA_COLCHETE = r'\]'
     t_ATRIBUICAO = r'\:\='
 
-    def t_INTEIRO(self, t):
-        r'\d+'
-        t.value = int(t.value)
-        return t
-
     def t_FLUTUANTE(self, t): 
         r'\d+\.\d+'
         t.value = float(t.value)
+        return t    
+
+    def t_INTEIRO(self, t):
+        r'\d+'
+        t.value = int(t.value)
         return t
 
     def t_NOTACAO_CIENTIFICA(self, t):
