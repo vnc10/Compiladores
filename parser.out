@@ -4,97 +4,204 @@ Unused terminals:
 
     ABRE_COLCHETE
     ABRE_PARENTESE
-    ATE
-    ATRIBUICAO
     DIFERENTE
-    DIVISAO
-    DOIS_PONTOS
-    ENTAO
-    ESCREVA
-    E_LOGICO
     FECHA_COLCHETE
     FECHA_PARENTESE
-    FIM
-    FLUTUANTE
-    ID
     IGUAL
-    INTEIRO
-    LEIA
-    MAIOR
-    MAIOR_IGUAL
     MAIS
-    MENOR
-    MENOR_IGUAL
     MENOS
-    MULTIPLICACAO
-    NEGACAO
     NOTACAO_CIENTIFICA
-    OU_LOGICO
-    REPITA
-    RETORNA
-    SE
-    SENAO
-    VIRGULA
 
 Grammar
 
-Rule 0     S' -> expression
-Rule 1     expression -> expression PLUS term
-Rule 2     expression -> expression MINUS term
-Rule 3     expression -> term
-Rule 4     term -> term TIMES factor
-Rule 5     term -> term DIVIDE factor
-Rule 6     term -> factor
-Rule 7     factor -> NUMBER
-Rule 8     factor -> LPAREN expression RPAREN
+Rule 0     S' -> programa
+Rule 1     programa -> lista_declaracoes
+Rule 2     lista_declaracoes -> lista_declaracoes declaracao
+Rule 3     lista_declaracoes -> declaracao
+Rule 4     declaracao -> declaracao_variaveis
+Rule 5     declaracao -> inicializacao_variaveis
+Rule 6     declaracao -> declaracao_funcao
+Rule 7     declaracao_variaveis -> tipo DOIS_PONTOS lista_variaveis
+Rule 8     inicializacao_variaveis -> atribuicao
+Rule 9     lista_variaveis -> lista_variaveis VIRGULA var
+Rule 10    lista_variaveis -> var
+Rule 11    var -> ID
+Rule 12    var -> ID indice
+Rule 13    indice -> indice ABRE_COL expressao FECHA_COL
+Rule 14    indice -> ABRE_COL expressao FECHA_COL
+Rule 15    indice -> ABRE_COL error
+Rule 16    indice -> error FECHA_COL
+Rule 17    indice -> ABRE_COL error FECHA_COL
+Rule 18    indice -> indice ABRE_COL error
+Rule 19    indice -> indice error FECHA_COL
+Rule 20    indice -> indice ABRE_COL error FECHA_COL
+Rule 21    tipo -> INTEIRO
+Rule 22    tipo -> FLUTUANTE
+Rule 23    declaracao_funcao -> tipo cabecalho
+Rule 24    declaracao_funcao -> cabecalho
+Rule 25    cabecalho -> ID error lista_parametros FECHA_PAR corpo FIM
+Rule 26    cabecalho -> ID ABRE_PAR lista_parametros error corpo FIM
+Rule 27    cabecalho -> ID ABRE_PAR lista_parametros FECHA_PAR corpo
+Rule 28    cabecalho -> ID ABRE_PAR lista_parametros FECHA_PAR corpo FIM
+Rule 29    lista_parametros -> lista_parametros VIRGULA parametro
+Rule 30    lista_parametros -> parametro
+Rule 31    lista_parametros -> vazio
+Rule 32    parametro -> tipo DOIS_PONTOS ID
+Rule 33    parametro -> parametro ABRE_COL FECHA_COL
+Rule 34    parametro -> tipo error ID
+Rule 35    parametro -> error ID
+Rule 36    parametro -> parametro error FECHA_COL
+Rule 37    parametro -> parametro ABRE_COL error
+Rule 38    corpo -> corpo acao
+Rule 39    corpo -> vazio
+Rule 40    acao -> expressao
+Rule 41    acao -> declaracao_variaveis
+Rule 42    acao -> se
+Rule 43    acao -> repita
+Rule 44    acao -> leia
+Rule 45    acao -> escreva
+Rule 46    acao -> retorna
+Rule 47    se -> error expressao ENTAO corpo FIM
+Rule 48    se -> SE expressao error corpo FIM
+Rule 49    se -> error expressao ENTAO corpo SENAO corpo FIM
+Rule 50    se -> SE expressao error corpo SENAO corpo FIM
+Rule 51    se -> SE expressao ENTAO corpo error corpo FIM
+Rule 52    se -> SE expressao ENTAO corpo SENAO corpo
+Rule 53    se -> SE expressao ENTAO corpo FIM
+Rule 54    se -> SE expressao ENTAO corpo SENAO corpo FIM
+Rule 55    repita -> REPITA corpo ATE expressao
+Rule 56    repita -> error corpo ATE expressao
+Rule 57    repita -> REPITA corpo error expressao
+Rule 58    atribuicao -> var ATRIBUICAO expressao
+Rule 59    leia -> LEIA ABRE_PAR var FECHA_PAR
+Rule 60    leia -> LEIA ABRE_PAR error FECHA_PAR
+Rule 61    escreva -> ESCREVA ABRE_PAR expressao FECHA_PAR
+Rule 62    retorna -> RETORNA ABRE_PAR expressao FECHA_PAR
+Rule 63    expressao -> expressao_logica
+Rule 64    expressao -> atribuicao
+Rule 65    expressao_logica -> expressao_simples
+Rule 66    expressao_logica -> expressao_logica operador_logico expressao_simples
+Rule 67    expressao_simples -> expressao_aditiva
+Rule 68    expressao_simples -> expressao_simples operador_relacional expressao_aditiva
+Rule 69    expressao_aditiva -> expressao_multiplicativa
+Rule 70    expressao_aditiva -> expressao_aditiva operador_soma expressao_multiplicativa
+Rule 71    expressao_multiplicativa -> expressao_unaria
+Rule 72    expressao_multiplicativa -> expressao_multiplicativa operador_multiplicacao expressao_unaria
+Rule 73    expressao_unaria -> fator
+Rule 74    expressao_unaria -> operador_soma fator
+Rule 75    expressao_unaria -> operador_negacao fator
+Rule 76    operador_relacional -> MENOR
+Rule 77    operador_relacional -> MAIOR
+Rule 78    operador_relacional -> IGUALDADE
+Rule 79    operador_relacional -> DIFERENCA
+Rule 80    operador_relacional -> MENOR_IGUAL
+Rule 81    operador_relacional -> MAIOR_IGUAL
+Rule 82    operador_soma -> ADICAO
+Rule 83    operador_soma -> SUBTRACAO
+Rule 84    operador_logico -> E_LOGICO
+Rule 85    operador_logico -> OU_LOGICO
+Rule 86    operador_negacao -> NEGACAO
+Rule 87    operador_multiplicacao -> MULTIPLICACAO
+Rule 88    operador_multiplicacao -> DIVISAO
+Rule 89    fator -> ABRE_PAR expressao FECHA_PAR
+Rule 90    fator -> var
+Rule 91    fator -> chamada_funcao
+Rule 92    fator -> numero
+Rule 93    fator -> ABRE_PAR expressao
+Rule 94    numero -> NUM_INTEIRO
+Rule 95    numero -> NUM_PONTO_FLUTUANTE
+Rule 96    numero -> NUM_NOTACAO_CIENTIFICA
+Rule 97    chamada_funcao -> ID ABRE_PAR lista_argumentos FECHA_PAR
+Rule 98    lista_argumentos -> lista_argumentos VIRGULA expressao
+Rule 99    lista_argumentos -> expressao
+Rule 100   lista_argumentos -> vazio
+Rule 101   vazio -> <empty>
 
 Terminals, with rules where they appear
 
 ABRE_COLCHETE        : 
 ABRE_PARENTESE       : 
-ATE                  : 
-ATRIBUICAO           : 
+ATE                  : 55 56
+ATRIBUICAO           : 58
 DIFERENTE            : 
-DIVISAO              : 
-DOIS_PONTOS          : 
-ENTAO                : 
-ESCREVA              : 
-E_LOGICO             : 
+DIVISAO              : 88
+DOIS_PONTOS          : 7 32
+ENTAO                : 47 49 51 52 53 54
+ESCREVA              : 61
+E_LOGICO             : 84
 FECHA_COLCHETE       : 
 FECHA_PARENTESE      : 
-FIM                  : 
-FLUTUANTE            : 
-ID                   : 
+FIM                  : 25 26 28 47 48 49 50 51 53 54
+FLUTUANTE            : 22
+ID                   : 11 12 25 26 27 28 32 34 35 97
 IGUAL                : 
-INTEIRO              : 
-LEIA                 : 
-MAIOR                : 
-MAIOR_IGUAL          : 
+INTEIRO              : 21
+LEIA                 : 59 60
+MAIOR                : 77
+MAIOR_IGUAL          : 81
 MAIS                 : 
-MENOR                : 
-MENOR_IGUAL          : 
+MENOR                : 76
+MENOR_IGUAL          : 80
 MENOS                : 
-MULTIPLICACAO        : 
-NEGACAO              : 
+MULTIPLICACAO        : 87
+NEGACAO              : 86
 NOTACAO_CIENTIFICA   : 
-OU_LOGICO            : 
-REPITA               : 
-RETORNA              : 
-SE                   : 
-SENAO                : 
-VIRGULA              : 
-error                : 
+OU_LOGICO            : 85
+REPITA               : 55 57
+RETORNA              : 62
+SE                   : 48 50 51 52 53 54
+SENAO                : 49 50 52 54
+VIRGULA              : 9 29 98
+error                : 15 16 17 18 19 20 25 26 34 35 36 37 47 48 49 50 51 56 57 60
 
 Nonterminals, with rules where they appear
 
-DIVIDE               : 5
-LPAREN               : 8
-MINUS                : 2
-NUMBER               : 7
-PLUS                 : 1
-RPAREN               : 8
-TIMES                : 4
-expression           : 1 2 8 0
-factor               : 4 5 6
-term                 : 1 2 3 4 5
+ABRE_COL             : 13 14 15 17 18 20 33 37
+ABRE_PAR             : 26 27 28 59 60 61 62 89 93 97
+ADICAO               : 82
+DIFERENCA            : 79
+FECHA_COL            : 13 14 16 17 19 20 33 36
+FECHA_PAR            : 25 27 28 59 60 61 62 89 97
+IGUALDADE            : 78
+NUM_INTEIRO          : 94
+NUM_NOTACAO_CIENTIFICA : 96
+NUM_PONTO_FLUTUANTE  : 95
+SUBTRACAO            : 83
+acao                 : 38
+atribuicao           : 8 64
+cabecalho            : 23 24
+chamada_funcao       : 91
+corpo                : 25 26 27 28 38 47 48 49 49 50 50 51 51 52 52 53 54 54 55 56 57
+declaracao           : 2 3
+declaracao_funcao    : 6
+declaracao_variaveis : 4 41
+escreva              : 45
+expressao            : 13 14 40 47 48 49 50 51 52 53 54 55 56 57 58 61 62 89 93 98 99
+expressao_aditiva    : 67 68 70
+expressao_logica     : 63 66
+expressao_multiplicativa : 69 70 72
+expressao_simples    : 65 66 68
+expressao_unaria     : 71 72
+fator                : 73 74 75
+indice               : 12 13 18 19 20
+inicializacao_variaveis : 5
+leia                 : 44
+lista_argumentos     : 97 98
+lista_declaracoes    : 1 2
+lista_parametros     : 25 26 27 28 29
+lista_variaveis      : 7 9
+numero               : 92
+operador_logico      : 66
+operador_multiplicacao : 72
+operador_negacao     : 75
+operador_relacional  : 68
+operador_soma        : 70 74
+parametro            : 29 30 33 36 37
+programa             : 0
+repita               : 43
+retorna              : 46
+se                   : 42
+tipo                 : 7 23 32 34
+var                  : 9 10 58 59 90
+vazio                : 31 39 100
 
