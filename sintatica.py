@@ -1,15 +1,15 @@
-import sys
 import ply.yacc as yacc
 from lexica import Lexica
 from graphviz import Digraph
+from sys import argv
 
 
 class Tree:
-    def __init__(self, type_node='', child=[], value='', lineno=''):
+    def __init__(self, type_node='', child=[], value='', line=''):
         self.type = type_node
         self.child = child
         self.value = value
-        self.lineno = lineno
+        self.line = line
 
     def __str__(self):
         return self.type
@@ -101,16 +101,10 @@ class Sintatica:
 
 
     def p_tipo(self, p):
-        '''
-        tipo : INTEIRO
-        '''
-        p[0] = Tree('inteiro', [])
+        '''tipo : INTEIRO
+        | FLUTUANTE'''
 
-    def p_tipo2(self, p):
-        '''
-        tipo : FLUTUANTE
-        '''
-        p[0] = Tree('flutuante', [])
+        p[0] = Tree('tipo', [], p[1])
 
 
     def p_declaracao_funcao(self, p):
@@ -289,6 +283,7 @@ class Sintatica:
     def p_expressao_unaria(self, p):
         """expressao_unaria : fator
                             | operador_soma fator
+                            | operador_negacao fator
             """
         if len(p) == 2:
             p[0] = Tree('expressao_unaria', [p[1]])
@@ -318,6 +313,11 @@ class Sintatica:
                         | OU_LOGICO
         """
         p[0] = Tree('operador_logico', [], str(p[1]))
+
+    def p_operador_negacao(self, p):
+        """operador_negacao : NEGACAO
+        """
+        p[0] = Tree('operador_negacao', [], str(p[1]), p.lineno(1))
 
     def p_operador_multiplicacao(self, p):
         """operador_multiplicacao : MULTIPLICACAO
@@ -360,12 +360,11 @@ class Sintatica:
 
     def p_vazio(self, p):
         "vazio : "
-
+    
     def p_error(self , p):
 
         if p:
-            token = p
-            print("['{line}','{column}']: erro próximo ao token '{token}'".format(line=token.lineno, column=token.column, token=token.value))
+            print("Erro no '%s', na linha: %d" % (p.value, p.lineno))
 
 
 
@@ -387,16 +386,8 @@ class Imprimir():
 
 
 if __name__ == '__main__':
-	from sys import argv, exit
-	f = open(argv[1])
-	try:
-		arvore = Sintatica(f.read())
-		w = Digraph('G', filename='Saidas/Saida.gv')
-		tree = Imprimir().mostra_tree(arvore.ast,'','', w, i=0)
-		
-		w.view()
-
-		
-	except IOError:
-		print ("Erro: Arquivo não encontrado. Verifique se o nome ou diretório está correto.")
-		#raise IOError("Erro: Arquivo não encontrado. Verifique se o nome ou diretório está correto.") 
+    f = open(argv[1])
+arvore = Sintatica(f.read())
+w = Digraph('G', filename='arquivosSalvos/Arvore')
+tree = Imprimir().mostra_tree(arvore.ast,'','', w, i=0)
+w.view() 
