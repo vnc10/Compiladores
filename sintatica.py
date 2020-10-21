@@ -184,7 +184,7 @@ class Sintatica:
             | SE expressao ENTAO corpo error corpo FIM
             | SE expressao ENTAO corpo SENAO corpo
         """
-        print("Erro na expressão se \n")
+        print("Erro na expressão Se \n")
                 
     def p_se(self, p):
         """se : SE expressao ENTAO corpo FIM
@@ -366,21 +366,20 @@ class Sintatica:
         if p:
             print("Erro no '%s', na linha: %d" % (p.value, p.lineno))
 
+class Print():
+    def __init__(self):
+        self.j = 1    
 
-
-class Imprimir():
-	def __init__(self):
-		self.j = 1
-		
-	def mostra_tree(self,node,strson, father, w, i):
-		if node != None :
-			i = i + 1
-			father = str(node) + " " + str(i-1)+ " " + str(self.j-1)
-			for son in node.child:
-				strson = str(son) + " " + str(i) + " " + str(self.j)
-				w.edge(father, strson)
-				self.j = self.j + 1
-				self.mostra_tree(son, strson, father, w, i)
+    def printTree(self, node, sizeSon, father, w, i):
+        j = 1
+        if node != None :
+            i = i + 1
+            father = str(node) + " " + str(i-1) + " " + str(self.j-1)
+            for son in node.child:
+                sizeSon = str(son) + " " + str(i) + " " + str(self.j)
+                w.edge(father, sizeSon)
+                self.j = self.j + 1
+                self.printTree(son, sizeSon, father, w, i)
 
 
 
@@ -388,6 +387,6 @@ class Imprimir():
 if __name__ == '__main__':
     f = open(argv[1])
 arvore = Sintatica(f.read())
-w = Digraph('G', filename='arquivosSalvos/Arvore')
-tree = Imprimir().mostra_tree(arvore.ast,'','', w, i=0)
+w = Digraph('G', filename='PDF/Arvore')
+tree = Print().printTree(arvore.ast,'','', w, i=0)
 w.view() 
