@@ -100,11 +100,16 @@ class Sintatica:
         print("Erro sintático de indexação \n")
 
 
-    def p_tipo(self, p):
+    def p_inteiro(self, p):
         '''tipo : INTEIRO
-        | FLUTUANTE'''
+        '''
+        p[0] = Tree('inteiro', [], p[1])
 
-        p[0] = Tree('tipo', [], p[1])
+
+    def p_flutuante(self, p):
+        '''tipo : FLUTUANTE
+        '''
+        p[0] = Tree('flutuante', [], p[1])
 
 
     def p_declaracao_funcao(self, p):
@@ -337,12 +342,20 @@ class Sintatica:
             p[0] = Tree('fator', [p[1]])
 
 
-    def p_numero(self, p):
+    def p_numero_inteiro(self, p):
         """numero : INTEIRO
-                | FLUTUANTE
-                | NOTACAO_CIENTIFICA
             """
-        p[0] = Tree('numero', [], str(p[1]), p.lineno(1))
+        p[0] = Tree('inteiro', [], str(p[1]), p.lineno(1))
+
+    def p_numero_flutuante(self, p):
+        """numero : FLUTUANTE
+            """
+        p[0] = Tree('flutuante', [], str(p[1]), p.lineno(1))
+
+    def p_numero_notacao_cientifica(self, p):
+        """numero : NOTACAO_CIENTIFICA
+            """
+        p[0] = Tree('cientifica', [], str(p[1]), p.lineno(1))
 
     def p_chamada_funcao(self, p):
         "chamada_funcao : ID ABRE_PARENTESE lista_argumentos FECHA_PARENTESE"
@@ -386,7 +399,7 @@ class Print():
 
 if __name__ == '__main__':
     f = open(argv[1])
-arvore = Sintatica(f.read())
+    arvore = Sintatica(f.read())
 w = Digraph('G', filename='PDF/Arvore')
 tree = Print().printTree(arvore.ast,'','', w, i=0)
 w.view() 
