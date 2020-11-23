@@ -1,7 +1,7 @@
 from sys import argv
-from sintatica2 import Sintatica
+from sintatica import Sintatica
 
-class corpoFuncao():
+class dadosFuncao():
 	def __init__(self, tipo, nome, parametros):
 		self.tipo = tipo
 		self.nome = nome
@@ -30,7 +30,7 @@ class Semantica():
 		self.verificaTipoDoNo("global", parser.ast) 				
 		self.verificaFuncaoPrincipal()								
 		self.verificaSeFoiUsado()								
-		self.verificarRetornos()
+		self.verificaRetornoFuncaoPrincipal()
 		self.imprime()
 		
 
@@ -91,7 +91,6 @@ class Semantica():
 					self.verificarIndiceVetor(no, escopo)
 			elif no.tipo == "declaracao_funcao":
 				self.declaracaoFuncao(no)
-
 			for filho in no.filhos:
 				self.verificaTipoDoNo(escopo, filho)
 
@@ -112,7 +111,7 @@ class Semantica():
 		else:
 			tipo2 = self.getTipoVar(var2.valor)
 		if tipo1 != tipo2:
-			print("ERRO: Expressão 'SE' incorreta. Deve comparar dois {}" .format(tipo1))
+			print("Erro: Expressão 'SE' incorreta. Deve comparar dois {}" .format(tipo1))
 		if no.filhos[1].tipo != 'operador_relacional':
 			print ("Erro: Expressão 'SE' é necessario um operador lógico")
 
@@ -126,7 +125,7 @@ class Semantica():
 			nome = no.filhos[0].valor
 			tipo = "vazio"
 			args = self.cabecalho(no.filhos[0], args)
-		funcao = corpoFuncao(tipo, nome, args)
+		funcao = dadosFuncao(tipo, nome, args)
 		self.funcoes.append(funcao)	
 
 	def cabecalho(self, no, args):
@@ -138,56 +137,44 @@ class Semantica():
 
 	def atribuicao(self, no, escopo):
 		tipos = []
-
 		leftVar = no.filhos[0]
 		lefttipo = self.procuraNaTabela(leftVar.valor, escopo)
 		tipos.append(lefttipo)
-
 		right = self.andaArvore(no.filhos[1])
-
 		if right.tipo == 'var':
 			tipo = self.procuraNaTabela(right.valor, escopo)			
 			if tipo == None:
 				print ("Erro: Variavel " +  right.filhos[0].valor + " é utilizada, mas não foi declarada")
 			else: tipos.append(tipo)
-
-		elif right.tipo == 'numero':
+		elif right.tipo == 'inteiro' or right.tipo == 'flutuante' or right.tipo == 'cientifica':
 			tipo = self.getTipoVar(right.valor)
 			tipos.append(tipo)
-	
 		if right.tipo == 'expressao_simples':
 			tipo_expr = self.expressao_simples(right, escopo)
 			tipos.append(tipo_expr)
-	
 		elif right.tipo == 'expressao_aditiva':
 			tipo_expr = self.expressao_aditiva(right, escopo)
 			tipos.append(tipo_expr)
-
 		elif right.tipo == 'expressao_multiplicativa':
 			tipo_expr = self.expressao_multiplicativa(right, escopo)
 			tipos.append(tipo_expr)
-
 		elif right.tipo == 'expressao_unaria':
 			tipo_expr = self.expressao_unaria(right, escopo)
 			tipos.append(tipo_expr)
-	
 		for i in range(0, len(tipos)):
 			if tipos[0] != tipos[i]:
-				if tipos[0] == False or tipos[0] == None:
-					aux = tipos[i]
-				#else:
-					#aux = tipos[0]
-
-				#print ("ERRO: Tipos incompativeis. "+ no.filhos[0].valor +" espera: " + str(aux))
-
-				break
+				aux = tipos[i]
+				if(aux != False):
+					aux2 = tipos[0]
+					print("Aviso: Coerção implícita do valor atribuído para " + no.filhos[0].valor + ", variável "+ no.filhos[0].valor + " " + str(aux2) + " recebendo um " + aux)
+					break
 
 	def expressao_simples(self, no, escopo):	
 		if len(no.filhos) == 1:
 			folha = self.andaArvore(no)
 			if folha.tipo == 'var':
 				return self.procuraNaTabela(folha.valor, escopo)
-			elif folha.tipo == 'numero':
+			elif folha.tipo == 'inteiro' or folha.tipo == 'flutuante' or folha.tipo == 'cientifico':
 				return self.getTipoVar(folha.valor)
 			elif folha.tipo == 'expressao_aditiva':
 				return self.expressao_aditiva(folha, escopo)
@@ -207,10 +194,9 @@ class Semantica():
 	def expressao_aditiva(self, no, escopo):
 		if len(no.filhos) == 1:
 			folha = self.andaArvore(no)
-
 			if folha.tipo == 'var':
 				return self.procuraNaTabela(folha.valor, escopo)
-			elif folha.tipo == 'numero':
+			elif folha.tipo == 'inteiro' or folha.tipo == 'flutuante' or folha.tipo == 'cientifica':
 				return self.getTipoVar(folha.valor)
 			elif folha.tipo == 'expressao_multiplicativa':
 				return self.expressao_multiplicativa(folha, escopo)
@@ -227,18 +213,15 @@ class Semantica():
 	def expressao_multiplicativa(self, no, escopo):
 		if len(no.filhos) == 1:
 			folha = self.andaArvore(no)
-
 			if folha.tipo == 'var':
 				return self.procuraNaTabela(folha.valor, escopo)
-			elif folha.tipo == 'numero':
+			elif folha.tipo == 'inteiro' or folha.tipo == 'flutuante' or folha.tipo == 'cientifica':
 				return self.getTipoVar(folha.valor)
 			elif folha.tipo == 'expressao_unaria':
 				return self.expressao_unaria(folha, escopo)
-
 		else:
 			tipo1 = self.expressao_aditiva(no.filhos[0], escopo)
 			tipo2 = self.expressao_multiplicativa(no.filhos[2], escopo)
-
 			if tipo1 != tipo2:
 				return False
 			else:
@@ -248,16 +231,15 @@ class Semantica():
 	def expressao_unaria(self, no, escopo):
 		if len(no.filhos) == 1:
 			folha = self.andaArvore(no)
-
 			if folha.tipo == 'var':
 					return self.procuraNaTabela(folha.valor, escopo)
-			elif folha.tipo == 'numero':
+			elif folha.tipo == 'inteiro' or folha.tipo == 'flutuante' or folha.tipo == 'cientifica':
 					return self.getTipoVar(folha.valor)
 		else:
 			tipo1 = self.andaArvore(no.filhos[0])
 			if tipo1.tipo == 'var':
 				return self.procuraNaTabela(tipo1.valor, escopo)
-			elif tipo1.tipo == 'numero':
+			elif tipo1.tipo == 'inteiro' or tipo1.tipo == 'flutuante' or tipo1.tipo == 'cientifica':
 				return self.getTipoVar(tipo1.valor)
 	
 	def verificaFuncaoPrincipal(self):
@@ -266,7 +248,7 @@ class Semantica():
 			if funcao.nome == "principal":
 				flag = 1
 		if flag == 0:
-			print ("ERRO: Função principal não declarada.")
+			print ("Erro: Função principal não declarada.")
 	
 	def verificaSeFoiUsado(self):
 		for simbolo in self.simbolos:
@@ -275,34 +257,31 @@ class Semantica():
 				if simbolo.valor == simbolo2.valor and simbolo.escopo == simbolo2.escopo:
 					flag = flag + 1
 					if flag > 1:
-						print ("ERRO: Variável  " + simbolo.valor + " já declarada anteriormente")
+						print ("Erro: Variável  " + simbolo.valor + " já declarada anteriormente")
 						self.simbolos.remove(simbolo)
-
 			if simbolo.utilizada == 0 and flag == 1:
-				print ("WARNING: Variável " + simbolo.valor + " declarada e não utilizada")
+				print ("Aviso: Variável " + simbolo.valor + " declarada e não utilizada")
 		
 
 
-	def verificarRetornos(self):
+	def verificaRetornoFuncaoPrincipal(self):
 		for funcao in self.funcoes:
 			#if funcao.retorno == 0 and funcao.tipo != "void":
-				#print("ERRO: Função " + funcao.nome + " sem retorno. Esperado retornar " + funcao.tipo + ".")
+				#print("Erro: Função " + funcao.nome + " sem retorno. Esperado retornar " + funcao.tipo + ".")
 			if funcao.retorno == 0 and funcao.nome == 'principal':
-				print("ERRO: Função principal deveria retornar inteiro, mas retorna vazio")
+				print("Erro: Função principal deveria retornar inteiro, mas retorna vazio")
 
 	def procuraNaTabela(self, var, escopo):
-
 		for x in self.simbolos:
 			if str(x.valor) == str(var) and str(x.escopo) == str(escopo):
 				x.utilizada = 1
 				return str(x.tipo)
-
 		for x in self.simbolos:
 			if str(x.valor) == str(var) and str(x.escopo) == "global":
 				x.utilizada = 1
 				return str(x.tipo)
 		
-		print ("ERRO: Variável " + var + " não declarada.")
+		print ("Erro: Variável " + var + " não declarada.")
 		return False
 	
 	def retorna(self, escopo, no):
@@ -310,7 +289,7 @@ class Semantica():
 		tipo = ''
 		if y.tipo == "var":
 			tipo = self.procuraNaTabela(y.valor, escopo)
-		elif y.tipo == "numero":
+		elif y.tipo == "inteiro" or y.tipo == "flutuante" or y.tipo == "cientifica":
 			tipo = self.getTipoVar(y.valor)
 		elif y.tipo == "expressao_simples":
 			tipo = self.expressao_simples(y, escopo)
@@ -320,72 +299,60 @@ class Semantica():
 			tipo = self.expressao_multiplicativa(y, escopo)
 		elif y.tipo == "expressao_unaria":
 			tipo = self.expressao_unaria(y, escopo)
-
 		for funcao in self.funcoes:
 			if funcao.tipo != tipo and funcao.nome == escopo: 
-				print ("ERRO: A função " + escopo + " deve retornar " + funcao.tipo + ".")
+				print ("Erro: A função " + escopo + " deve retornar " + funcao.tipo + ".")
 				break
 			if funcao.tipo == tipo and funcao.nome == escopo:
 				funcao.retorno = 1
 				break
 
 	def chamada_funcao(self, no, escopo):
-
 		if no.valor == "principal" and escopo == "principal":
 			print ("Aviso: Chamada recursiva para a função principal")
-			return False
-
+			#return False
 		for i in self.funcoes: 
 			l = 0
 			if i.nome == no.valor:
-				i.utilizada = 1 
-				
+				i.utilizada = 1 	
 				l = l + 1
 				if no.filhos[0] == None:
 					#print("if break ",no.filhos[0])
 					return False
-				
 				args = self.lista_argumentos(no.filhos[0], escopo, [])
-
 				if args != None:
 					if len(args) != len(i.parametros) :
-						print ("ERRO: Chamada a função " + i.nome + " com número de parâmetros menor que o declarado")
+						print ("Erro: Chamada a função " + i.nome + " com número de parâmetros menor que o declarado")
 						return False
-					#else:
-						#for j in range(0,len(args)):
-							#if args[j] != i.parametros[j]:
-								#print ("ERRO: Tipos incompatíveis no argumento. Argumento " + str(j+1) + " deve ser um " + str(i.parametros[j]) + ". Função " + str(i.nome) + ".")
-								#return False
-						#return True
-
-
-		print ("ERRO: Função " + no.valor + " é utilizada mas nao foi declarada.")
+					else:
+						for j in range(0,len(args)):
+							if args[j] != i.parametros[j]:
+								print ("Erro: Tipos incompatíveis no argumento. Argumento " + str(j+1) + " deve ser um " + str(i.parametros[j]) + ". Função " + str(i.nome) + ".")
+								return False
+						return True
+			else:
+				print("Aviso: Função " + i.nome + " declarada, mas não utilizada.")
+		print("Aviso: Função " + no.valor + " é utilizada mas nao foi declarada.")
 
 
 	def args_chamadaFunc(self, no, args, escopo):
 		if no == None:
 			return args
-
 		if len(no.filhos) == 1:
 			if no.filhos[0] != None:
 				folha = self.andaArvore(no.filhos[0])
-				
 				if folha.tipo == "var":
 					tipo = self.procuraNaTabela(folha.valor, escopo)
-
 					if tipo != None:
 						return tipo		
-
-				elif folha.tipo == "numero":
+				elif folha.tipo == "inteiro" or folha.tipo == "flutuante" or folha.tipo == "cientifica":
 					tipo = self.getTipoVar(folha.valor)
-					return tipo
-					
+					return tipo		
 		else:
 			for filho in no.filhos:
 				tipo = self.args_chamadaFunc(filho, args, escopo)
 				if tipo == 'inteiro' or tipo == 'flutuante':
 					args.append(tipo)
-
 			return args
 
 			
@@ -401,58 +368,47 @@ class Semantica():
 				args = self.lista_parametros(y, args)
 
 	def lista_argumentos(self, no, escopo, args):
-	
-
 		for no in no.filhos:
-			
 			if args == None:
-				print ("ERRO: Lista de argumentos inválida.")
+				print ("Erro: Lista de argumentos inválida.")
 			y = self.andaArvore(no)
-			
 			if y.tipo == "expressao_simples":
 				tipo = self.expressao_simples(y, escopo)
 				if tipo == "flutuante" or tipo == "inteiro":
-					args.append(tipo)
 					args.append(tipo)
 					return args 
 			elif y.tipo == "expressao_multiplicativa":
 				tipo = self.expressao_multiplicativa(y, escopo)
 				if tipo == "flutuante" or tipo == "inteiro":
 					args.append(tipo)
-					args.append(tipo)
 					return args 
 			elif y.tipo == "expressao_aditiva":
 				tipo = self.expressao_aditiva(y, escopo)
 				if tipo == "flutuante" or tipo == "inteiro":
-					args.append(tipo)
 					args.append(tipo)
 					return args 
 			elif y.tipo == "expressao_unaria":
 				tipo = self.expressao_unaria(y, escopo)
 				if tipo == "flutuante" or tipo == "inteiro":
 					args.append(tipo)
-					args.append(tipo)
 					return args 
 			elif y.tipo == "var":
 				tipo = self.procuraNaTabela(y.valor, escopo)
 				args.append(tipo)
-			elif y.tipo == "numero":
+			elif y.tipo == "inteiro" or y.tipo == "flutuante" or y.tipo == "cientifica":
 				tipo = self.getTipoVar(y.valor)
 				args.append(tipo)
 				return args 
-			
 			else:
 				args = self.lista_argumentos(y,escopo ,args)
 			return args
 
 
 	def getTipoVar(self, num):
-
 		try:
 			num = int(num)
 		except Exception:
 			num = float(num)
-
 		if type(num) == float:
 			return "flutuante"
 		elif type(num) == int:
@@ -464,7 +420,7 @@ class Semantica():
 		tipo = ""
 		if y.tipo == "var":
 			tipo = self.procuraNaTabela(y.valor, escopo)
-		elif y.tipo == "numero":
+		elif y.tipo == "inteiro" or y.tipo == "flutuante" or y.tipo == "cientifica":
 			tipo = self.getTipoVar(y.valor)
 		elif y.tipo == "expressao_simples":
 			tipo = self.expressao_simples(y, escopo)
@@ -474,28 +430,15 @@ class Semantica():
 			tipo = self.expressao_multiplicativa(y, escopo)
 		elif y.tipo == "expressao_unaria":
 			tipo = self.expressao_unaria(y, escopo)
-
-		if tipo == "flutuante":
-			print ("ERRO: Índice do vetor "+ no.valor +" deve ser inteiro.")
-
+		if y.tipo == "flutuante":
+			print ("Erro: Indice do vetor "+ no.valor +" deve ser inteiro.")
 
 	def imprime(self):
 		print("Tabela de Simbolos")
 		for simbolos in self.simbolos:
-			#print("função: , ", simbolos.escopo, simbolos.valor, simbolos.corpo, simbolos.tipo, simbolos.utilizada)
-			print(simbolos.escopo, end='')
-			print(".", end='')
-			print(simbolos.valor, end='')
-			print(": ", end='')
-			print("[", end='')
-			print(simbolos.corpo, end='')
-			print(", ", end='')
-			print(simbolos.tipo, end='')
-			print(", ", end='')
-			print(simbolos.utilizada, end='')
-			print("]") 
-		for funcoes in self.funcoes:
-			print("Nome da função: {} \n Tipo: {}".format(funcoes.nome, funcoes.tipo))
+			print("Lexema : {}, Tipo: {}, Escopo: {}".format(simbolos.valor, simbolos.tipo, simbolos.escopo))
+		#for funcoes in self.funcoes:
+			#print("Nome da função: {}, Tipo: {}".format(funcoes.nome, funcoes.tipo))
 
 if __name__ == '__main__':
 	f = open(argv[1])

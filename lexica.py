@@ -36,7 +36,7 @@ class Lexica:
         'MAIOR_IGUAL', 
         'E_LOGICO', 
         'OU_LOGICO', 
-        'NEGACAO', 
+        #'NEGACAO', 
         'ABRE_PARENTESE', 
         'FECHA_PARENTESE', 
         'ABRE_COLCHETE', 
@@ -60,7 +60,7 @@ class Lexica:
     t_MAIOR_IGUAL = r'\>\='
     t_E_LOGICO = r'\&\&'
     t_OU_LOGICO = r'\|\|'
-    t_NEGACAO = r'\!'
+    #t_NEGACAO = r'\!'
     t_ABRE_PARENTESE = r'\('
     t_FECHA_PARENTESE = r'\)'
     t_ABRE_COLCHETE = r'\['
