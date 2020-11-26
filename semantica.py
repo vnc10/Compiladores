@@ -31,7 +31,7 @@ class Semantica():
 		self.verificaFuncaoPrincipal()								
 		self.verificaSeFoiUsado()								
 		self.verificaRetornoFuncaoPrincipal()
-		self.imprime()
+		#self.imprime()
 		
 
 	def andaArvore(self, no):
@@ -39,6 +39,28 @@ class Semantica():
 			no = no.filhos[0]
 		return no		
 
+	
+	def verificaTipoDoNo(self, escopo, no): 
+		if no != None:
+			if no.tipo == "cabecalho": 
+				escopo = no.valor
+			elif no.tipo == "se": 
+				self.condicional(no, escopo) 
+			elif no.tipo == "atribuicao": 
+				self.atribuicao(no, escopo) 
+			elif no.tipo == "retorna": 
+				self.retorna(escopo, no) 
+			elif no.tipo == "chamada_funcao":
+				self.chamada_funcao(no, escopo)
+			elif no.tipo == "var":
+				if len(no.filhos) > 0:
+					self.verificarIndiceVetor(no, escopo)
+			elif no.tipo == "declaracao_funcao":
+				self.declaracaoFuncao(no)
+			for filho in no.filhos:
+				self.verificaTipoDoNo(escopo, filho)
+	
+	
 	def criaTabelaSimbolos(self, escopo, no): 
 		if no != None:
 			if no.tipo == "cabecalho":
@@ -73,27 +95,6 @@ class Semantica():
 			self.simbolos.append(no)	
 			return
 
-
-	def verificaTipoDoNo(self, escopo, no): 
-		if no != None:
-			if no.tipo == "cabecalho": 
-				escopo = no.valor
-			elif no.tipo == "se": 
-				self.condicional(no, escopo) 
-			elif no.tipo == "atribuicao": 
-				self.atribuicao(no, escopo) 
-			elif no.tipo == "retorna": 
-				self.retorna(escopo, no) 
-			elif no.tipo == "chamada_funcao":
-				self.chamada_funcao(no, escopo)
-			elif no.tipo == "var":
-				if len(no.filhos) > 0:
-					self.verificarIndiceVetor(no, escopo)
-			elif no.tipo == "declaracao_funcao":
-				self.declaracaoFuncao(no)
-			for filho in no.filhos:
-				self.verificaTipoDoNo(escopo, filho)
-
 	def condicional(self, no, escopo): 
 		no = no.filhos[0]
 		var1 = None
@@ -110,10 +111,6 @@ class Semantica():
 			tipo2 = self.procuraNaTabela(var2.valor, escopo)
 		else:
 			tipo2 = self.getTipoVar(var2.valor)
-		if tipo1 != tipo2:
-			print("Erro: Expressão 'SE' incorreta. Deve comparar dois {}" .format(tipo1))
-		if no.filhos[1].tipo != 'operador_relacional':
-			print ("Erro: Expressão 'SE' é necessario um operador lógico")
 
 	def declaracaoFuncao(self, no):
 		args = []
@@ -262,8 +259,6 @@ class Semantica():
 			if simbolo.utilizada == 0 and flag == 1:
 				print ("Aviso: Variável " + simbolo.valor + " declarada e não utilizada")
 		
-
-
 	def verificaRetornoFuncaoPrincipal(self):
 		for funcao in self.funcoes:
 			#if funcao.retorno == 0 and funcao.tipo != "void":
@@ -317,7 +312,6 @@ class Semantica():
 				i.utilizada = 1 	
 				l = l + 1
 				if no.filhos[0] == None:
-					#print("if break ",no.filhos[0])
 					return False
 				args = self.lista_argumentos(no.filhos[0], escopo, [])
 				if args != None:
