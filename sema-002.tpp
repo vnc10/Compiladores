@@ -5,9 +5,9 @@
 
 inteiro: a
 flutuante: b
-inteiro: c[1.2]
+inteiro: c[5]
 
 inteiro principal()
-  c[5.8] := 10
+  c[10] := 10
     
 fim
