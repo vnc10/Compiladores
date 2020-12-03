@@ -1,13 +1,25 @@
 from sys import argv
 from semantica import Semantica
 from llvmlite import ir
-
+from llvmlite import binding as llvm
 
 class geracaoCodigo(object):
 	def __init__(self, code):
 		self.semantica = Semantica(code)
 		self.arvore = self.semantica.ast
+		llvm.initialize()
+		llvm.initialize_all_targets()
+		llvm.initialize_native_target()
+		llvm.initialize_native_asmprinter()
 		self.module = ir.Module('meu_modulo.bc')
+		self.module.triple = llvm.get_process_triple()
+		target = llvm.Target.from_triple(self.module.triple)
+		target_machine = target.create_target_machine()
+		self.module.data_layout = target_machine.target_data
+
+
+
+		#llvm.shutdown()
 		self.variaveis = []
 		self.variaveisGlobais = []
 		self.escopo = "global"
@@ -281,13 +293,13 @@ class geracaoCodigo(object):
 				var1 = self.cast(var1, builder) 
 				var2 = self.cast(var2, builder)	
 				if operador == '+':
-					temp = builder.add(var1, var2, name='tempadd', flags=())
+					temp = builder.add(var1, var2, name='soma', flags=())
 				elif operador == '-':
-					temp = builder.sub(var1, var2, name='tempsub', flags=())
+					temp = builder.sub(var1, var2, name='subtração', flags=())
 				elif operador == '/':
-					temp = builder.udiv(var1, var2, name='tempdiv', flags=())
+					temp = builder.udiv(var1, var2, name='divisão', flags=())
 				elif operador == '*':
-					temp = builder.mul(var1, var2, name='tempmul', flags=())
+					temp = builder.mul(var1, var2, name='multiplicação', flags=())
 				return temp
 			
 			else:
@@ -296,13 +308,13 @@ class geracaoCodigo(object):
 				var1 = self.cast(var1, builder) 
 				var2 = self.cast(var2, builder)	
 				if operador == '+':
-					temp = builder.fadd(var1, var2, name='tempadd', flags=())
+					temp = builder.fadd(var1, var2, name='soma', flags=())
 				elif operador == '-':
-					temp = builder.fsub(var1, var2, name='tempsub', flags=())
+					temp = builder.fsub(var1, var2, name='subtração', flags=())
 				elif operador == '/':
-					temp = builder.fdiv(var1, var2, name='tempdiv', flags=())
+					temp = builder.fdiv(var1, var2, name='divisão', flags=())
 				elif operador == '*':
-					temp = builder.fmul(var1, var2, name='tempmul', flags=())
+					temp = builder.fmul(var1, var2, name='multiplicação', flags=())
 				return temp
 
 	def se(self, no, builder):
